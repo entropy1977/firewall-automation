@@ -1,0 +1,103 @@
+# Firewall Security Policies
+# Define business policies here; fw_manager.py generates device-specific rules.
+# Each policy should include a business justification for compliance auditing.
+
+policies:
+  - name: "Allow Web Traffic - Staff"
+    description: "Permit HTTP/HTTPS from internal network to internet"
+    source: "192.168.0.0/16"
+    destination: "any"
+    ports: [80, 443]
+    protocol: "tcp"
+    action: "permit"
+    zone_from: "INSIDE"
+    zone_to: "OUTSIDE"
+    business_justification: "Required for staff internet access and cloud applications"
+
+  - name: "Allow DNS - Internal"
+    description: "Permit DNS queries to internal DNS servers"
+    source: "192.168.0.0/16"
+    destination: "192.168.1.5/32"
+    ports: [53]
+    protocol: "udp"
+    action: "permit"
+    zone_from: "INSIDE"
+    zone_to: "DMZ"
+    business_justification: "Required for internal name resolution"
+
+  - name: "Allow SMTP - Mail Server"
+    description: "Permit SMTP traffic to mail server"
+    source: "any"
+    destination: "10.0.1.25/32"
+    ports: [25, 587]
+    protocol: "tcp"
+    action: "permit"
+    zone_from: "OUTSIDE"
+    zone_to: "DMZ"
+    business_justification: "Required for inbound email delivery"
+
+  - name: "Allow SSH - Admin Only"
+    description: "Permit SSH from admin subnet to servers"
+    source: "192.168.10.0/24"
+    destination: "192.168.1.0/24"
+    ports: [22]
+    protocol: "tcp"
+    action: "permit"
+    zone_from: "ADMIN"
+    zone_to: "SERVERS"
+    business_justification: "Required for server administration (least privilege)"
+
+  - name: "Allow RDP - Admin Only"
+    description: "Permit RDP from admin subnet to Windows servers"
+    source: "192.168.10.0/24"
+    destination: "192.168.1.0/24"
+    ports: [3389]
+    protocol: "tcp"
+    action: "permit"
+    zone_from: "ADMIN"
+    zone_to: "SERVERS"
+    business_justification: "Required for Windows server administration"
+
+  - name: "Block Telnet - All Zones"
+    description: "Deny all Telnet traffic (insecure unencrypted protocol)"
+    source: "any"
+    destination: "any"
+    ports: [23]
+    protocol: "tcp"
+    action: "deny"
+    zone_from: "any"
+    zone_to: "any"
+    business_justification: "Security policy SP-003: unencrypted protocols prohibited"
+
+  - name: "Block FTP - All Zones"
+    description: "Deny all FTP traffic (use SFTP instead)"
+    source: "any"
+    destination: "any"
+    ports: [20, 21]
+    protocol: "tcp"
+    action: "deny"
+    zone_from: "any"
+    zone_to: "any"
+    business_justification: "Security policy SP-003: unencrypted protocols prohibited"
+
+  - name: "Allow ICMP - Monitoring"
+    description: "Permit ICMP for network monitoring and troubleshooting"
+    source: "192.168.0.0/16"
+    destination: "192.168.0.0/16"
+    ports: [0]  # ICMP type 0 (echo reply) - simplified
+    protocol: "icmp"
+    action: "permit"
+    zone_from: "INSIDE"
+    zone_to: "INSIDE"
+    business_justification: "Required for Zabbix/SNMP monitoring and network troubleshooting"
+
+  - name: "Allow VPN - Remote Access"
+    description: "Permit IPSec VPN traffic from remote users"
+    source: "any"
+    destination: "10.0.0.1/32"
+    ports: [500, 4500]
+    protocol: "udp"
+    action: "permit"
+    zone_from: "OUTSIDE"
+    zone_to: "VPN"
+    business_justification: "Required for secure remote access (work from home)"
